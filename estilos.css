@@ -1,0 +1,126 @@
+/* styles.css */
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    font-size: 2.5em;
+    margin-bottom: 30px;
+}
+
+.add-book, .filter {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    position: sticky;
+    top: 0;
+    background-color: white;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    z-index: 1000;
+}
+
+input[type="text"], select {
+    padding: 10px;
+    width: 220px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus, select:focus {
+    border-color: #5ca9b8;
+    box-shadow: 0 0 8px rgba(92, 169, 184, 0.6);
+}
+
+button {
+    padding: 10px 25px;
+    background-color: #8d9297;
+    color: white;
+    border: none;
+    border-radius: 10%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #4a6a99;
+    transform: translateY(-2px);
+}
+
+.book-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.book-item {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    width: calc(25% - 20px);
+    box-sizing: border-box;
+    background-color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.book-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.book-item img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.book-item p {
+    margin: 10px 0;
+    color: #666;
+}
+
+.like-checkbox, .dislike-checkbox {
+    margin-top: 10px;
+}
+
+@media (max-width: 1200px) {
+    .book-item {
+        width: calc(33.33% - 20px);
+    }
+}
+
+@media (max-width: 800px) {
+    .book-item {
+        width: calc(50% - 20px);
+    }
+}
+
+@media (max-width: 500px) {
+    .book-item {
+        width: 100%;
+    }
+}
+

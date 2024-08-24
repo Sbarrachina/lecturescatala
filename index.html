@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Llista de Llibres</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <div class="container">
+        <h1> Lectures en Català</h1>
+        <div class="add-book">
+            <input type="text" id="title" placeholder="Títol del llibre">
+            <input type="text" id="author" placeholder="Autor">
+            <input type="text" id="cover" placeholder="URL de la portada">
+            <button onclick="addBook()">Afegir Llibre</button>
+        </div>
+        <div class="filter">
+            <select id="author-filter" onchange="filterByAuthor()">
+                <option value="">Filtrar per autor</option>
+            </select>
+        </div>
+        <div class="book-list" id="book-list"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
