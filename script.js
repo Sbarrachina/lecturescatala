@@ -1,20 +1,18 @@
-
 const bookList = document.getElementById('book-list');
 const authorFilter = document.getElementById('author-filter');
 let db;
 
-// Abrimos (o creamos) la base de datos llamada 'bookDatabase'
+// Inicializar IndexedDB
 const request = indexedDB.open('bookDatabase', 1);
 
 request.onupgradeneeded = function(event) {
     db = event.target.result;
-    // Creamos un almacén de objetos llamado 'books' con la clave primaria 'id'
     db.createObjectStore('books', { keyPath: 'id' });
 };
 
 request.onsuccess = function(event) {
     db = event.target.result;
-    updateBookList();  // Actualiza la lista de libros cuando la base de datos esté lista
+    updateBookList();
     updateAuthorFilter();
 };
 
@@ -22,6 +20,7 @@ request.onerror = function(event) {
     console.error('Error al abrir IndexedDB:', event.target.errorCode);
 };
 
+// Agregar un libro
 function addBook() {
     const title = document.getElementById('title').value;
     const author = document.getElementById('author').value;
@@ -30,26 +29,25 @@ function addBook() {
     if (title && author && cover) {
         const transaction = db.transaction(['books'], 'readwrite');
         const objectStore = transaction.objectStore('books');
-
-        // Creamos el libro con un ID único basado en la fecha actual
         const book = { id: Date.now().toString(), title, author, cover, liked: false, disliked: false };
-        
-        objectStore.put(book); // Guardar el libro en IndexedDB
-        
-        transaction.oncomplete = () => {
+
+        const request = objectStore.put(book);
+
+        request.onsuccess = function() {
             updateBookList();
             updateAuthorFilter();
             document.getElementById('title').value = '';
             document.getElementById('author').value = '';
             document.getElementById('cover').value = '';
         };
-        
-        transaction.onerror = (event) => {
+
+        request.onerror = function(event) {
             console.error('Error al guardar el libro en IndexedDB:', event.target.errorCode);
         };
     }
 }
 
+// Actualizar la lista de libros
 function updateBookList() {
     const transaction = db.transaction(['books'], 'readonly');
     const objectStore = transaction.objectStore('books');
@@ -58,14 +56,19 @@ function updateBookList() {
     request.onsuccess = function(event) {
         const books = event.target.result;
         bookList.innerHTML = '';
-        books.forEach((book, index) => {
-            const bookItem = createBookElement(book, index);
+        books.forEach((book) => {
+            const bookItem = createBookElement(book);
             bookList.appendChild(bookItem);
         });
     };
+
+    request.onerror = function(event) {
+        console.error('Error al recuperar la lista de libros:', event.target.errorCode);
+    };
 }
 
-function createBookElement(book, index) {
+// Crear un elemento de libro
+function createBookElement(book) {
     const bookItem = document.createElement('div');
     bookItem.className = 'book-item';
     bookItem.innerHTML = `
@@ -86,6 +89,7 @@ function createBookElement(book, index) {
     return bookItem;
 }
 
+// Editar un libro
 function editBook(id) {
     const transaction = db.transaction(['books'], 'readwrite');
     const objectStore = transaction.objectStore('books');
@@ -102,29 +106,36 @@ function editBook(id) {
             book.author = newAuthor;
             book.cover = newCover;
 
-            objectStore.put(book); // Guardar cambios en IndexedDB
-            transaction.oncomplete = updateBookList;
-            transaction.onerror = (event) => {
+            const putRequest = objectStore.put(book);
+            putRequest.onsuccess = function() {
+                updateBookList();
+            };
+            putRequest.onerror = function(event) {
                 console.error('Error al editar el libro:', event.target.errorCode);
             };
         }
     };
 }
 
+// Eliminar un libro
 function deleteBook(id) {
     const confirmDelete = confirm(`Estàs segur d'esborrar aquest llibre?`);
     if (confirmDelete) {
         const transaction = db.transaction(['books'], 'readwrite');
         const objectStore = transaction.objectStore('books');
-        objectStore.delete(id);
+        const request = objectStore.delete(id);
 
-        transaction.oncomplete = updateBookList;
-        transaction.onerror = (event) => {
+        request.onsuccess = function() {
+            updateBookList();
+        };
+
+        request.onerror = function(event) {
             console.error('Error al eliminar el libro:', event.target.errorCode);
         };
     }
 }
 
+// Alternar like
 function toggleLike(id) {
     const transaction = db.transaction(['books'], 'readwrite');
     const objectStore = transaction.objectStore('books');
@@ -136,11 +147,18 @@ function toggleLike(id) {
         if (book.liked) {
             book.disliked = false;
         }
-        objectStore.put(book);
-        transaction.oncomplete = updateBookList;
+        const putRequest = objectStore.put(book);
+        putRequest.onsuccess = function() {
+            updateBookList();
+        };
+    };
+
+    request.onerror = function(event) {
+        console.error('Error al alternar like:', event.target.errorCode);
     };
 }
 
+// Alternar dislike
 function toggleDislike(id) {
     const transaction = db.transaction(['books'], 'readwrite');
     const objectStore = transaction.objectStore('books');
@@ -152,11 +170,18 @@ function toggleDislike(id) {
         if (book.disliked) {
             book.liked = false;
         }
-        objectStore.put(book);
-        transaction.oncomplete = updateBookList;
+        const putRequest = objectStore.put(book);
+        putRequest.onsuccess = function() {
+            updateBookList();
+        };
+    };
+
+    request.onerror = function(event) {
+        console.error('Error al alternar dislike:', event.target.errorCode);
     };
 }
 
+// Actualizar el filtro por autor
 function updateAuthorFilter() {
     const transaction = db.transaction(['books'], 'readonly');
     const objectStore = transaction.objectStore('books');
@@ -174,8 +199,13 @@ function updateAuthorFilter() {
             authorFilter.appendChild(option);
         });
     };
+
+    request.onerror = function(event) {
+        console.error('Error al actualizar el filtro por autor:', event.target.errorCode);
+    };
 }
 
+// Filtrar por autor
 function filterByAuthor() {
     const selectedAuthor = authorFilter.value.trim();
 
@@ -191,8 +221,13 @@ function filterByAuthor() {
 
         updateBookListFiltered(filteredBooks);
     };
+
+    request.onerror = function(event) {
+        console.error('Error al filtrar por autor:', event.target.errorCode);
+    };
 }
 
+// Actualizar la lista filtrada
 function updateBookListFiltered(filteredBooks) {
     bookList.innerHTML = '';
 
@@ -201,10 +236,9 @@ function updateBookListFiltered(filteredBooks) {
         noResultsItem.textContent = 'No hay libros para este autor.';
         bookList.appendChild(noResultsItem);
     } else {
-        filteredBooks.forEach((book, index) => {
-            const bookItem = createBookElement(book, index);
+        filteredBooks.forEach((book) => {
+            const bookItem = createBookElement(book);
             bookList.appendChild(bookItem);
         });
     }
 }
-
